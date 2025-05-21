@@ -1,7 +1,13 @@
 package com.sky.service;
 
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
+import com.sky.result.Result;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface EmployeeService {
 
@@ -12,4 +18,5 @@ public interface EmployeeService {
      */
     Employee login(EmployeeLoginDTO employeeLoginDTO);
 
+    void save(EmployeeDTO employeeDTO);
 }
