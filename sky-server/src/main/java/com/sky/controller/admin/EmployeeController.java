@@ -3,8 +3,10 @@ package com.sky.controller.admin;
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
@@ -78,4 +80,10 @@ public class EmployeeController {
         return Result.success();
     }
 
+    @GetMapping("/page")
+    @ApiOperation("员工分页查询")
+    public Result<PageResult> pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
+        return Result.success(pageResult);
+    }
 }
