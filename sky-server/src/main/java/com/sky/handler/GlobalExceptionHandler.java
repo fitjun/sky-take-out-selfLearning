@@ -35,6 +35,7 @@ public class GlobalExceptionHandler {
             String msg = split[2];
             return Result.error(msg+MessageConstant.ALREADY_EXIST);
         }else {
+            log.error("异常信息：{}", ex.getMessage());
             return Result.error(MessageConstant.UNKNOWN_ERROR);
         }
     }
