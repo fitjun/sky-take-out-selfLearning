@@ -33,4 +33,19 @@ public class CategoryController {
         categoryService.updateCategory(category);
         return Result.success();
     }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用禁用分类")
+    //明确了地址栏需要的变量才是@PathVariable，通过问好后传输的变量用RequestParam
+    public Result changeStatus(@PathVariable Integer status,@RequestParam Long id){
+        categoryService.changeStatus(status,id);
+        return Result.success();
+    }
+
+    @PostMapping
+    @ApiOperation("新增分类")
+    public Result addCatagory(@RequestBody CategoryDTO categoryDTO){
+        categoryService.addCatagory(categoryDTO);
+        return Result.success();
+    }
 }

@@ -38,4 +38,26 @@ public class CategoryServiceImpl implements CategoryService {
         categoryEntity.setUpdateUser(BaseContext.getCurrentId());
         categoryMapper.update(categoryEntity);
     }
+
+    @Override
+    public void changeStatus(Integer status,Long id) {
+        Category category = new Category();
+        category.setStatus(status);
+        category.setUpdateTime(LocalDateTime.now());
+        category.setUpdateUser(BaseContext.getCurrentId());
+        category.setId(id);
+        categoryMapper.update(category);
+    }
+
+    @Override
+    public void addCatagory(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        BeanUtils.copyProperties(categoryDTO,category);
+        category.setCreateTime(LocalDateTime.now());
+        category.setCreateUser(BaseContext.getCurrentId());
+        category.setUpdateTime(LocalDateTime.now());
+        category.setUpdateUser(BaseContext.getCurrentId());
+        category.setStatus(1);
+        categoryMapper.addCatagory(category);
+    }
 }
