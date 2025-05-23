@@ -48,4 +48,11 @@ public class CategoryController {
         categoryService.addCatagory(categoryDTO);
         return Result.success();
     }
+
+    @GetMapping("/list")
+    @ApiOperation("根据类型查询分类")
+    public Result<List<Category>> listByType(@RequestParam(required = false) Integer type){
+        List<Category> categories = categoryService.listByType(type);
+        return Result.success(categories);
+    }
 }
