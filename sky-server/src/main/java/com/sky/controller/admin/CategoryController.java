@@ -6,6 +6,7 @@ import com.sky.entity.Category;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.CategoryService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,5 +55,11 @@ public class CategoryController {
     public Result<List<Category>> listByType(@RequestParam(required = false) Integer type){
         List<Category> categories = categoryService.listByType(type);
         return Result.success(categories);
+    }
+    @DeleteMapping
+    @ApiOperation("根据id删除分类")
+    public Result delCatagoryById(@RequestParam Long id){
+        categoryService.delCatagoryById(id);
+        return Result.success();
     }
 }
