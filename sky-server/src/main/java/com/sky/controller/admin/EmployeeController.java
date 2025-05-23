@@ -43,7 +43,7 @@ public class EmployeeController {
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
         log.info("员工登录：{}", employeeLoginDTO);
 
-        Employee employee = employeeService.login(employeeLoginDTO);
+        Employee employee = employeeService.login(employeeLoginDTO);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 
         //登录成功后，生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
@@ -59,7 +59,6 @@ public class EmployeeController {
                 .name(employee.getName())
                 .token(token)
                 .build();
-
         return Result.success(employeeLoginVO);
     }
 
@@ -85,5 +84,24 @@ public class EmployeeController {
     public Result<PageResult> pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
         PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
+    }
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用禁用员工账号")
+    public Result ChangeEmpStatus(@PathVariable Integer status , @RequestParam Long id) {
+        employeeService.updateEmpStatus(status,id);
+        return Result.success();
+    }
+
+    @PutMapping
+    @ApiOperation("修改员工信息")
+    public Result alterEmp(@RequestBody EmployeeDTO employeeDTO){
+        employeeService.updateEmp(employeeDTO);
+        return Result.success();
+    }
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询员工")
+    public Result<Employee> findEmpById(@PathVariable Long id){
+        Employee employee = employeeService.findById(id);
+        return Result.success(employee);
     }
 }

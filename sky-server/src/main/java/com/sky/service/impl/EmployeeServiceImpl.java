@@ -87,4 +87,30 @@ public class EmployeeServiceImpl implements EmployeeService {
         return pageResult;
     }
 
+    @Override
+    public void updateEmpStatus(Integer status, Long id) {
+        //调用mapper的更新方法即可，mapper更新方法是动态sql，有哪个参数改哪个，让mapper方法可重用，这样就要传对象给mapper，因为mapper都是对整个对象修改
+        Employee employee = new Employee();
+        employee.setStatus(status);
+        employee.setId(id);
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.updateEmp(employee);
+    }
+
+    @Override
+    public void updateEmp(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.updateEmp(employee);
+    }
+
+    @Override
+    public Employee findById(Long id) {
+        Employee employee = employeeMapper.findById(id);
+        return employee;
+    }
+
 }
