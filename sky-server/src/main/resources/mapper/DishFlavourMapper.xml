@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.DishFlavourMapper">
+<!--    #item是取出的元素在循环中的名字,separator是每轮循环用什么符号分割 DishId需要手动从Dish中取出放入每一个flavours-->
+    <insert id="addFlavour">
+        INSERT INTO dish_flavor (dish_id, name, value) VALUES
+                                                           <foreach collection="flavors" item="df" separator=",">
+                                                               (#{df.dishId},#{df.name},#{df.value})
+                                                           </foreach>
+    </insert>
+</mapper>

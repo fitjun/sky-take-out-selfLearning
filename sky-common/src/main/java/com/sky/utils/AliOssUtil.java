@@ -44,8 +44,6 @@ public class AliOssUtil {
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");
             System.out.println("Error Message:" + ce.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             if (ossClient != null) {
                 ossClient.shutdown();
