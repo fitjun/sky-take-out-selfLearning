@@ -7,4 +7,6 @@ import java.util.List;
 @Mapper
 public interface DishFlavourMapper {
     void addFlavour(List<DishFlavor> flavors);
+
+    void delByDishId(Long[] ids);
 }

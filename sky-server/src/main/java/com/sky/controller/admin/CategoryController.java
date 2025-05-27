@@ -62,4 +62,5 @@ public class CategoryController {
         categoryService.delCatagoryById(id);
         return Result.success();
     }
+
 }

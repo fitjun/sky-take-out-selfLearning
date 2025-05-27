@@ -8,4 +8,8 @@ public interface DishService {
     void addDishWithFlavour(DishDTO dish);
 
     PageResult page(DishPageQueryDTO queryDTO);
+
+    void delDish(Long[] ids);
+
+    void ChangeStatus(Integer status, Long id);
 }

@@ -8,6 +8,7 @@ import com.sky.service.DishService;
 import com.sky.vo.DishVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,5 +31,18 @@ public class DishController {
     public Result<PageResult> page( DishPageQueryDTO queryDTO) {
         PageResult result = dishService.page(queryDTO);
         return Result.success(result);
+    }
+
+    @DeleteMapping
+    @ApiOperation("删除菜品")
+    public Result delDish(Long[]ids){
+        dishService.delDish(ids);
+        return Result.success();
+    }
+
+    @PostMapping("/status/{status}")
+    public Result ChangeStatus(@PathVariable Integer status,Long id){
+        dishService.ChangeStatus(status,id);
+        return Result.success();
     }
 }
