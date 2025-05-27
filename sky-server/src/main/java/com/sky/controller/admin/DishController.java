@@ -41,8 +41,23 @@ public class DishController {
     }
 
     @PostMapping("/status/{status}")
+    @ApiOperation("改变菜品状态")
     public Result ChangeStatus(@PathVariable Integer status,Long id){
         dishService.ChangeStatus(status,id);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询菜品及口味")
+    public Result<DishVO> findDishAndFlavorById(@PathVariable Long id){
+        DishVO dishVO = dishService.findDishAndFlavorById(id);
+        return Result.success(dishVO);
+    }
+
+    @PutMapping
+    @ApiOperation("修改菜品")
+    public Result updateDish(@RequestBody DishDTO dishDTO){
+        dishService.updateDish(dishDTO);
         return Result.success();
     }
 }

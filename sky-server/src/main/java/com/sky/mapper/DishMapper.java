@@ -19,6 +19,6 @@ public interface DishMapper {
     @AutoFill(value = OperationType.UPDATE)
     void updateDish(Dish dish);
 
-    @Select("select status from dish where id = #{id}")
+    @Select("select * from dish where id = #{id}")
     Dish findById(Long id);
 }

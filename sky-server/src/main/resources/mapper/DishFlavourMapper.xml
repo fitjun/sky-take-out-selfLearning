@@ -9,6 +9,7 @@
                                                                (#{df.dishId},#{df.name},#{df.value})
                                                         </foreach>
     </insert>
+
     <delete id="delByDishId">
         DELETE FROM dish_flavor
         where dish_id IN
@@ -16,4 +17,6 @@
                 #{id}
             </foreach>
     </delete>
+
+
 </mapper>

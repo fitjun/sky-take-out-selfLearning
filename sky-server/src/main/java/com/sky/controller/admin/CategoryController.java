@@ -56,6 +56,7 @@ public class CategoryController {
         List<Category> categories = categoryService.listByType(type);
         return Result.success(categories);
     }
+
     @DeleteMapping
     @ApiOperation("根据id删除分类")
     public Result delCatagoryById(@RequestParam Long id){
