@@ -21,8 +21,9 @@
     <delete id="delById">
         DELETE FROM dish
         <where>
+            id IN
             <foreach collection="ids" item="id" separator="," open="(" close=")">
-                id = #{id}
+                #{id}
             </foreach>
         </where>
     </delete>
