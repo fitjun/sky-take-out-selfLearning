@@ -46,4 +46,11 @@ public class SetMealController {
         setMealService.updateSetMeal(setmealDTO);
         return Result.success();
     }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用停用套餐")
+    public Result changeStatus(@PathVariable Integer status,Long id){
+        setMealService.changeStatus(status,id);
+        return Result.success();
+    }
 }

@@ -68,4 +68,12 @@ public class SetMealServiceImpl implements SetMealService {
         setmealDishes.forEach(setmealDish -> {setmealDish.setSetmealId(setmeal.getId());});
         setMealDishMapper.addMealDish(setmealDishes);
     }
+
+    @Override
+    public void changeStatus(Integer status,Long id) {
+        Setmeal setmeal = new Setmeal();
+        setmeal.setStatus(status);
+        setmeal.setId(id);
+        setMealMapper.update(setmeal);
+    }
 }
