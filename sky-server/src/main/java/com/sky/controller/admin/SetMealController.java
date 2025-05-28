@@ -39,4 +39,11 @@ public class SetMealController {
         SetmealVO setmealVO = setMealService.findSetMealById(id);
         return Result.success(setmealVO);
     }
+
+    @PutMapping
+    @ApiOperation("修改套餐信息")
+    public Result updateSetMeal(@RequestBody SetmealDTO setmealDTO){
+        setMealService.updateSetMeal(setmealDTO);
+        return Result.success();
+    }
 }
