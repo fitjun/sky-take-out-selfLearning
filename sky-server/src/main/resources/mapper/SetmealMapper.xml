@@ -2,7 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetMealMapper">
-    
+
+    <delete id="delSetmealByIds">
+        DELETE FROM setmeal WHERE id IN
+                            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                                #{id}
+                            </foreach>
+    </delete>
+
     <select id="findAll" resultType="com.sky.vo.SetmealVO">
         SELECT s.*,c.name categoryName FROM setmeal s left join category c ON s.category_id = c.id
         <where>

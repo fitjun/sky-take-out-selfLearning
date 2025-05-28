@@ -10,4 +10,11 @@
             (#{setmeal.setmealId},#{setmeal.dishId},#{setmeal.name},#{setmeal.price},#{setmeal.copies})
         </foreach>
     </insert>
+
+    <delete id="delBySetmealIds">
+        DELETE FROM setmeal_dish WHERE setmeal_id IN
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+    </delete>
 </mapper>

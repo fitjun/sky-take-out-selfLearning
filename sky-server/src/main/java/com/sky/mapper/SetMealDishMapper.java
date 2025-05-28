@@ -17,6 +17,5 @@ public interface SetMealDishMapper {
     @Select("select * from setmeal_dish where setmeal_id = #{id}")
     List<SetmealDish> findBySetMealId(Long id);
 
-    @Delete("delete from setmeal_dish where setmeal_id = #{id}")
-    void delBySetmealId(Long id);
+    void delBySetmealIds(Long [] ids);
 }

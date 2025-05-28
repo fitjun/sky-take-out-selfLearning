@@ -53,4 +53,11 @@ public class SetMealController {
         setMealService.changeStatus(status,id);
         return Result.success();
     }
+
+    @DeleteMapping
+    @ApiOperation("删除套餐")
+    public Result delSetmealById(Long[] ids){
+        setMealService.delSetmealById(ids);
+        return Result.success();
+    }
 }
