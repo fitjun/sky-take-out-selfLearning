@@ -12,4 +12,7 @@ public interface SetMealDishMapper {
     Long findByDishId(Long id);
 
     void addMealDish(List<SetmealDish> setmealDishes);
+
+    @Select("select * from setmeal_dish where setmeal_id = #{id}")
+    List<SetmealDish> findBySetMealId(Long id);
 }

@@ -6,6 +6,7 @@ import com.sky.entity.Setmeal;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.SetMealService;
+import com.sky.vo.SetmealVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,5 +31,12 @@ public class SetMealController {
     public Result save(@RequestBody SetmealDTO setmealDTO) {
         setMealService.save(setmealDTO);
         return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询套餐")
+    public Result<SetmealVO> findSetMealById(@PathVariable Long id){
+        SetmealVO setmealVO = setMealService.findSetMealById(id);
+        return Result.success(setmealVO);
     }
 }

@@ -46,4 +46,12 @@ public class SetMealServiceImpl implements SetMealService {
         setmealDishes.forEach(setmealDish -> {setmealDish.setSetmealId(setmeal.getId());});
         setMealDishMapper.addMealDish(setmealDishes);
     }
+
+    @Override
+    public SetmealVO findSetMealById(Long id) {
+        SetmealVO setmealVO = setMealMapper.findById(id);
+        List<SetmealDish> setmealDishes = setMealDishMapper.findBySetMealId(id);
+        setmealVO.setSetmealDishes(setmealDishes);
+        return setmealVO;
+    }
 }
