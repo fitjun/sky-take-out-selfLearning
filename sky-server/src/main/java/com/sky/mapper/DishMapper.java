@@ -8,6 +8,8 @@ import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface DishMapper {
     @AutoFill(value = OperationType.INSERT)
@@ -21,4 +23,7 @@ public interface DishMapper {
 
     @Select("select * from dish where id = #{id}")
     Dish findById(Long id);
+
+    @Select("select * from dish where category_id=#{id}")
+    List<Dish> findByCatagoryId(Long id);
 }

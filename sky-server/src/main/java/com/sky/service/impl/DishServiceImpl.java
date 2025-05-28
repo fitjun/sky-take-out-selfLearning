@@ -112,4 +112,10 @@ public class DishServiceImpl implements DishService {
             dishFlavourMapper.addFlavour(dishFlavors);
         }
     }
+
+    @Override
+    public List<Dish> findBycatagoryId(Long id) {
+        List<Dish> dishes = dishMapper.findByCatagoryId(id);
+        return dishes;
+    }
 }
