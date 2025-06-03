@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -99,5 +101,17 @@ public class SetMealServiceImpl implements SetMealService {
         setMealMapper.delSetmealByIds(ids);
         //同时删除setmealdish表中对应套餐数据
         setMealDishMapper.delBySetmealIds(ids);
+    }
+
+    @Override
+    public List<Setmeal> findSetmealByCategoryId(Integer categoryId) {
+        List<Setmeal> setmeals = setMealMapper.findByCategoryId(categoryId);
+        return setmeals;
+    }
+
+    @Override
+    public List<Dish> findDishBySetmealId(Integer semealId) {
+        List<Dish> dishes =dishMapper.findBySetmealId(semealId);
+        return dishes;
     }
 }

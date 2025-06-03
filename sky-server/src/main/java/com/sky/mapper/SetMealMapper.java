@@ -8,6 +8,8 @@ import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface SetMealMapper {
     Page<SetmealVO> findAll(Setmeal setmeal);
@@ -22,4 +24,7 @@ public interface SetMealMapper {
     void update(Setmeal setmeal);
 
     void delSetmealByIds(Long[] ids);
+
+    @Select("select * from setmeal where category_id = #{categoryId}")
+    List<Setmeal> findByCategoryId(Integer categoryId);
 }
