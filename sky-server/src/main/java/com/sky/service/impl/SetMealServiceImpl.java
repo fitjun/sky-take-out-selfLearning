@@ -8,6 +8,7 @@ import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetMealDishMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.result.PageResult;
@@ -26,6 +27,8 @@ public class SetMealServiceImpl implements SetMealService {
     private SetMealMapper setMealMapper;
     @Autowired
     private SetMealDishMapper setMealDishMapper;
+    @Autowired
+    private DishMapper dishMapper;
     @Override
     public PageResult page(SetmealPageQueryDTO queryDTO) {
         PageHelper.startPage(queryDTO.getPage(),queryDTO.getPageSize());
@@ -73,11 +76,14 @@ public class SetMealServiceImpl implements SetMealService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void changeStatus(Integer status,Long id) {
         Setmeal setmeal = new Setmeal();
         setmeal.setStatus(status);
         setmeal.setId(id);
         setMealMapper.update(setmeal);
+        //套餐起售对应的菜品也应该起售反之也是 因为是操作dish表，所以应该用dishMapper
+        dishMapper.updateDishBySetmealId(id,status);
     }
 
     @Override

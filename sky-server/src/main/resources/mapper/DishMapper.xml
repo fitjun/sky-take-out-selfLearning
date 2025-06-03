@@ -40,4 +40,8 @@
         </set>
         WHERE id = #{id}
     </update>
+    <update id="updateDishBySetmealId">
+        UPDATE dish SET status = #{status}
+        where id IN (SELECT dish_id FROM setmeal_dish where setmeal_id = #{id})
+    </update>
 </mapper>

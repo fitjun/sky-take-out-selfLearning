@@ -26,4 +26,6 @@ public interface DishMapper {
 
     @Select("select * from dish where category_id=#{id}")
     List<Dish> findByCatagoryId(Long id);
+
+    void updateDishBySetmealId(Long id, Integer status);
 }
