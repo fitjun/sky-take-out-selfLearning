@@ -114,8 +114,12 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public List<Dish> findBycatagoryId(Long id) {
-        List<Dish> dishes = dishMapper.findByCatagoryId(id);
+    @Transactional(rollbackFor = Exception.class)
+    public List<DishVO> findBycatagoryId(Long id) {
+        List<DishVO> dishes = dishMapper.findByCatagoryId(id);
+        dishes.forEach(dish -> {
+            dish.setFlavors(findDishAndFlavorById(dish.getId()).getFlavors());
+        });
         return dishes;
     }
 }

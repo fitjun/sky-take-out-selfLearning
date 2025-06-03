@@ -25,7 +25,10 @@ public interface DishMapper {
     Dish findById(Long id);
 
     @Select("select * from dish where category_id=#{id}")
-    List<Dish> findByCatagoryId(Long id);
+    List<DishVO> findByCatagoryId(Long id);
 
     void updateDishBySetmealId(Long id, Integer status);
+
+    @Select("select * from dish where id IN (select dish_id from setmeal_dish where setmeal_id=#{setmealId})")
+    List<Dish> findBySetmealId(Integer semealId);
 }

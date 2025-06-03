@@ -10,6 +10,7 @@ import com.sky.entity.Category;
 import com.sky.mapper.CategoryMapper;
 import com.sky.result.PageResult;
 import com.sky.service.CategoryService;
+import org.apache.catalina.startup.Catalina;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public PageResult page(CategoryPageQueryDTO category) {
         PageHelper.startPage(category.getPage(),category.getPageSize());
-        Page<Category> page = categoryMapper.findCategory(category);
+        Category c = new Category();
+        BeanUtils.copyProperties(category,c);
+        Page<Category> page = categoryMapper.findCategory(c);
         long total = page.getTotal();
         List<Category> result = page.getResult();
         return new PageResult(total,result);
@@ -64,8 +67,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> listByType(Integer type) {
-        List<Category> categories = categoryMapper.listByType(type);
-        return categories;
+        Category category = new Category();
+        category.setType(type);
+        Page<Category> category1 = categoryMapper.findCategory(category);
+        return category1.getResult();
     }
 
     @Override

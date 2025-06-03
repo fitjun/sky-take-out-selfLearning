@@ -22,7 +22,4 @@
         </set>
         WHERE id = #{id}
     </update>
-    <select id="listByType" resultType="category">
-        SELECT * FROM category WHERE type=#{type}
-    </select>
 </mapper>

@@ -13,7 +13,7 @@ import java.util.List;
 
 @Mapper
 public interface CategoryMapper {
-    Page<Category> findCategory(CategoryPageQueryDTO categoryPageQueryDTO);
+    Page<Category> findCategory(Category category);
 
     @AutoFill(OperationType.UPDATE)
     void update(Category categoryEntity);
@@ -23,7 +23,7 @@ public interface CategoryMapper {
             "VALUE (#{type},#{name},#{sort},#{status},#{createTime},#{updateTime},#{createUser},#{updateUser})")
     void addCatagory(Category category);
 
-    List<Category> listByType(Integer type);
+
     @Delete("DELETE FROM category WHERE id = #{id}")
     void delCatagoryById(Long id);
 }

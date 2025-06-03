@@ -10,6 +10,8 @@ import com.sky.vo.UserLoginVO;
 import io.jsonwebtoken.Jwts;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +26,7 @@ import static com.sky.constant.JwtClaimsConstant.USER_ID;
 @RestController
 @RequestMapping("/user/user")
 @Api(tags = "C端用户相关接口")
+@Slf4j
 public class UserController {
     @Autowired
     private UserService userService;
@@ -31,11 +34,13 @@ public class UserController {
     private JwtProperties jwtProperties;
     @PostMapping("/login")
     @ApiOperation("用户微信登录")
+
     public Result<UserLoginVO> login(@RequestBody UserLoginDTO userLoginDTO) {
         User user = userService.wxlogin(userLoginDTO);
         Map<String, Object> claims = new HashMap<>();
         claims.put(USER_ID, user.getId());
         String jwt = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
+        log.info("jwt创建成功：{}",jwt);
         UserLoginVO userLoginVO = UserLoginVO.builder()
                 .id(user.getId())
                 .token(jwt)
