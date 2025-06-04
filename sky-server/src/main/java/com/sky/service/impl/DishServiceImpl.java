@@ -1,5 +1,8 @@
 package com.sky.service.impl;
 
+import cn.hutool.json.JSONUtil;
+import com.alibaba.druid.support.json.JSONUtils;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -16,13 +19,14 @@ import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,6 +39,8 @@ public class DishServiceImpl implements DishService {
     private DishFlavourMapper dishFlavourMapper;
     @Autowired
     private SetMealDishMapper setMealDishMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Override
     public void addDishWithFlavour(DishDTO dish) {
         Dish dishEntity = new Dish();
@@ -116,10 +122,22 @@ public class DishServiceImpl implements DishService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<DishVO> findBycatagoryId(Long id) {
-        List<DishVO> dishes = dishMapper.findByCatagoryId(id);
+        String key = "DISH:"+ id;
+        //redis判断，redis中没有再访问数据库
+        String json = (String) redisTemplate.opsForValue().get(key);
+        List<DishVO> dishes = JSONUtil.toList(json, DishVO.class);
+        if (dishes != null && dishes.size() > 0) {
+            log.info("redis查询成功：{}", dishes);
+            return dishes;
+        }
+        //redis中没有数据，查询数据库并插入redis
+        dishes = dishMapper.findByCatagoryId(id);
         dishes.forEach(dish -> {
             dish.setFlavors(findDishAndFlavorById(dish.getId()).getFlavors());
+            dish.setCategoryId(id);
         });
+        String jsonString = JSONUtil.toJsonStr(dishes);
+        redisTemplate.opsForValue().set(key,jsonString);
         return dishes;
     }
 }
