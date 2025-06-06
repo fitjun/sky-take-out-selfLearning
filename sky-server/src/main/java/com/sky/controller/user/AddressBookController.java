@@ -49,4 +49,10 @@ public class AddressBookController {
         addressBookService.update(addressBook);
         return Result.success();
     }
+    @PutMapping("/default")
+    @ApiOperation("设置默认地址")
+    public Result changeDefault(@RequestBody AddressBook addressBook){
+        addressBookService.changeDefault(addressBook);
+        return Result.success();
+    }
 }

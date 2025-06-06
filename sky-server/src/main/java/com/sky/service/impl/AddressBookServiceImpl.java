@@ -7,6 +7,7 @@ import com.sky.service.AddressBookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +50,19 @@ public class AddressBookServiceImpl implements AddressBookService {
 
     @Override
     public void update(AddressBook addressBook) {
+        addressBookMapper.update(addressBook);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void changeDefault(AddressBook addressBook) {
+        AddressBook addressBook1 = new AddressBook();
+        addressBook1.setIsDefault(1);
+        List<AddressBook> addressBook2 = addressBookMapper.findAddressBook(addressBook1);
+        AddressBook def = addressBook2.get(0);
+        def.setIsDefault(0);
+        addressBookMapper.update(def);
+        addressBook.setIsDefault(1);
         addressBookMapper.update(addressBook);
     }
 }

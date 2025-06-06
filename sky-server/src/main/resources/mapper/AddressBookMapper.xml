@@ -16,7 +16,7 @@
             <if test="detail!=null and detail!=''">detail = #{detail},</if>
             <if test="districtCode!=null and districtCode!=''">district_code = #{districtCode},</if>
             <if test="districtName!=null and districtName!=''">district_name = #{districtName},</if>
-            <if test="isDefault!=null and isDefault!=''">is_default = #{isDefault},</if>
+            <if test="isDefault!=null">is_default = #{isDefault},</if>
             <if test="label!=null and label!=''">label = #{label},</if>
             <if test="phone!=null and phone!=''">phone = #{phone},</if>
             <if test="provinceCode!=null and provinceCode!=''">province_code = #{provinceCode},</if>
@@ -32,5 +32,6 @@
             <if test="isDefault!=null">and is_default = #{isDefault}</if>
             <if test="id!=null">and id = #{id}</if>
         </where>
+        order by is_default desc
     </select>
 </mapper>
