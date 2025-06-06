@@ -7,6 +7,7 @@ import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.ShoppingCart;
 import com.sky.enumeration.OperationType;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.mapper.ShoppingCartMapper;
@@ -71,6 +72,32 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 BeanUtils.copyProperties(dish, shoppingCart);
                 shoppingCartMapper.add(shoppingCart);
             }
+        }
+    }
+
+    @Override
+    public void clean() {
+        Long userId = BaseContext.getCurrentId();
+        shoppingCartMapper.clean(userId);
+    }
+
+    @Override
+    public void subItem(ShoppingCartDTO shoppingCartDTO) {
+        //查询购物车，找到该条数据，若不存在抛出异常 若减后为0则删除该条数据
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+        List<ShoppingCart> items = shoppingCartMapper.findShoppingCart(shoppingCart);
+        if (items != null && items.size() > 0) {
+            ShoppingCart shoppingCart1 = items.get(0);
+            Integer number = shoppingCart1.getNumber();
+            if (number>1){
+                shoppingCart1.setNumber(number-1);
+                shoppingCartMapper.update(shoppingCart1);
+            }else {
+                shoppingCartMapper.delById(shoppingCart1.getId());
+            }
+        }else {
+            throw new DeletionNotAllowedException("该商品不存在购物车");
         }
     }
 }
