@@ -12,4 +12,6 @@ public interface AddressBookService {
     AddressBook findDefault();
 
     AddressBook findById(Long id);
+
+    void update(AddressBook addressBook);
 }

@@ -46,4 +46,9 @@ public class AddressBookServiceImpl implements AddressBookService {
         List<AddressBook> addressBook1 = addressBookMapper.findAddressBook(addressBook);
         return addressBook1.get(0);
     }
+
+    @Override
+    public void update(AddressBook addressBook) {
+        addressBookMapper.update(addressBook);
+    }
 }

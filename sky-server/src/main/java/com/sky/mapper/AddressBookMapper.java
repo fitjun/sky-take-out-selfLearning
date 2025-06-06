@@ -10,4 +10,6 @@ public interface AddressBookMapper {
     List<AddressBook> findAddressBook(AddressBook addressBook);
 
     void add(AddressBook addressBook);
+
+    void update(AddressBook addressBook);
 }
