@@ -37,7 +37,10 @@ public class AddressBookServiceImpl implements AddressBookService {
         AddressBook addressBook = new AddressBook();
         addressBook.setIsDefault(1);
         List<AddressBook> addressBook1 = addressBookMapper.findAddressBook(addressBook);
-        return addressBook1.get(0);
+        if(addressBook1.size()>0 &&addressBook1!=null){
+            return addressBook1.get(0);
+        }
+        return null;
     }
 
     @Override
@@ -64,5 +67,11 @@ public class AddressBookServiceImpl implements AddressBookService {
         addressBookMapper.update(def);
         addressBook.setIsDefault(1);
         addressBookMapper.update(addressBook);
+    }
+
+    @Override
+    public void delById(Long id) {
+        log.info("删除地址" + id);
+        addressBookMapper.delById(id);
     }
 }

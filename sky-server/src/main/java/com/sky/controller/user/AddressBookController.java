@@ -55,4 +55,11 @@ public class AddressBookController {
         addressBookService.changeDefault(addressBook);
         return Result.success();
     }
+
+    @DeleteMapping
+    @ApiOperation("根据id删除地址")
+    public Result delById(Long id){
+        addressBookService.delById(id);
+        return Result.success();
+    }
 }
