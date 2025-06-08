@@ -1,0 +1,83 @@
+package com.sky.service.impl;
+
+import cn.hutool.db.sql.Order;
+import com.sky.constant.MessageConstant;
+import com.sky.context.BaseContext;
+import com.sky.dto.OrdersDTO;
+import com.sky.dto.OrdersSubmitDTO;
+import com.sky.entity.AddressBook;
+import com.sky.entity.OrderDetail;
+import com.sky.entity.Orders;
+import com.sky.entity.ShoppingCart;
+import com.sky.exception.AddressBookBusinessException;
+import com.sky.exception.ShoppingCartBusinessException;
+import com.sky.mapper.AddressBookMapper;
+import com.sky.mapper.OrderMapper;
+import com.sky.mapper.ShoppingCartMapper;
+import com.sky.service.OrderService;
+import com.sky.vo.OrderSubmitVO;
+import com.sun.org.apache.bcel.internal.ExceptionConst;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class OrderServiceImpl implements OrderService {
+    @Autowired
+    private AddressBookMapper addressBookMapper;
+    @Autowired
+    private ShoppingCartMapper shoppingCartMapper;
+    @Autowired
+    private OrderMapper orderMapper;
+    @Override
+    @Transactional
+    public OrderSubmitVO submit(OrdersSubmitDTO order) {
+        //异常判断 购物车为空、地址为空
+        AddressBook addressBook = new AddressBook();
+        addressBook.setId(order.getAddressBookId());
+        List<AddressBook> addressBook1 = addressBookMapper.findAddressBook(addressBook);
+        if (addressBook1 == null || addressBook1.isEmpty()) {
+            throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
+        }
+        Long currentId = BaseContext.getCurrentId();
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUserId(currentId);
+        List<ShoppingCart> shoppingCart1 = shoppingCartMapper.findShoppingCart(shoppingCart);
+        if (shoppingCart1 == null || shoppingCart1.isEmpty()) {
+            throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
+        }
+        //取出数据，创建订单对象、订单细节对象
+        addressBook=addressBook1.get(0);
+        Orders o = new Orders();
+        BeanUtils.copyProperties(order, o);
+        o.setNumber(String.valueOf(System.currentTimeMillis()));
+        o.setStatus(Orders.PENDING_PAYMENT);
+        o.setUserId(currentId);
+        o.setOrderTime(LocalDateTime.now());
+        o.setPayStatus(Orders.UN_PAID);
+        o.setPhone(addressBook.getPhone());
+        orderMapper.insert(o);
+        List<OrderDetail> ol = new ArrayList<>();
+        for (ShoppingCart sc : shoppingCart1) {
+            OrderDetail orderDetail = new OrderDetail();
+            BeanUtils.copyProperties(sc, orderDetail);
+            orderDetail.setOrderId(o.getId());
+            ol.add(orderDetail);
+        }
+        orderMapper.insertOrderDetail(ol);
+        //成功后删除购物车
+        shoppingCartMapper.clean(currentId);
+        OrderSubmitVO  orderSubmitVO = OrderSubmitVO.builder()
+                .id(o.getId())
+                .orderNumber(o.getNumber())
+                .orderTime(o.getOrderTime())
+                .orderAmount(o.getAmount())
+                .build();
+        return orderSubmitVO;
+    }
+}

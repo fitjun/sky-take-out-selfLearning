@@ -1,7 +1,9 @@
 package com.sky.service.impl;
 
+import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
 import com.sky.entity.AddressBook;
+import com.sky.exception.AddressBookBusinessException;
 import com.sky.mapper.AddressBookMapper;
 import com.sky.service.AddressBookService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,9 +64,12 @@ public class AddressBookServiceImpl implements AddressBookService {
         AddressBook addressBook1 = new AddressBook();
         addressBook1.setIsDefault(1);
         List<AddressBook> addressBook2 = addressBookMapper.findAddressBook(addressBook1);
-        AddressBook def = addressBook2.get(0);
-        def.setIsDefault(0);
-        addressBookMapper.update(def);
+        if (!addressBook2.isEmpty()){
+            AddressBook def = addressBook2.get(0);
+            def.setIsDefault(0);
+            addressBookMapper.update(def);
+        }
+        //没有默认值
         addressBook.setIsDefault(1);
         addressBookMapper.update(addressBook);
     }
