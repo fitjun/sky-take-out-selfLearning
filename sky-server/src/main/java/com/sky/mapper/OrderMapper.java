@@ -11,4 +11,6 @@ public interface OrderMapper {
     void insert(Orders o);
 
     void insertOrderDetail(List<OrderDetail> ol);
+
+    void update(Orders orders);
 }

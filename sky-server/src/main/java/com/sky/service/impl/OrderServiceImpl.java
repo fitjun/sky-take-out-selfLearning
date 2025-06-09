@@ -14,6 +14,7 @@ import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.AddressBookMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
+import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderSubmitVO;
 import com.sun.org.apache.bcel.internal.ExceptionConst;
@@ -61,6 +62,9 @@ public class OrderServiceImpl implements OrderService {
         o.setOrderTime(LocalDateTime.now());
         o.setPayStatus(Orders.UN_PAID);
         o.setPhone(addressBook.getPhone());
+        o.setConsignee(addressBook.getConsignee());
+        String address = addressBook.getProvinceName() + addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail();
+        o.setAddress(address);
         orderMapper.insert(o);
         List<OrderDetail> ol = new ArrayList<>();
         for (ShoppingCart sc : shoppingCart1) {
@@ -79,5 +83,16 @@ public class OrderServiceImpl implements OrderService {
                 .orderAmount(o.getAmount())
                 .build();
         return orderSubmitVO;
+    }
+
+    @Override
+    public LocalDateTime pay(OrdersDTO ordersDTO) {
+        Orders orders = new Orders();
+        BeanUtils.copyProperties(ordersDTO, orders);
+        orders.setPayStatus(Orders.PAID);
+        orders.setPayMethod(ordersDTO.getPayMethod());
+        orders.setCheckoutTime(LocalDateTime.now());
+        orderMapper.update(orders);
+        return LocalDateTime.now().plusMinutes(30);
     }
 }
