@@ -1,7 +1,9 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
+import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -13,4 +15,8 @@ public interface OrderMapper {
     void insertOrderDetail(List<OrderDetail> ol);
 
     void update(Orders orders);
+
+    Page<OrderVO> findOrder(Orders orders);
+
+    List<OrderDetail> FindOrderDetailByOrderId(Long id);
 }

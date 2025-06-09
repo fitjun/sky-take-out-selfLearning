@@ -1,6 +1,8 @@
 package com.sky.service.impl;
 
 import cn.hutool.db.sql.Order;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.OrdersDTO;
@@ -14,9 +16,11 @@ import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.AddressBookMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import com.sun.org.apache.bcel.internal.ExceptionConst;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -90,9 +95,26 @@ public class OrderServiceImpl implements OrderService {
         Orders orders = new Orders();
         BeanUtils.copyProperties(ordersDTO, orders);
         orders.setPayStatus(Orders.PAID);
+        orders.setStatus(Orders.TO_BE_CONFIRMED);
         orders.setPayMethod(ordersDTO.getPayMethod());
         orders.setCheckoutTime(LocalDateTime.now());
         orderMapper.update(orders);
         return LocalDateTime.now().plusMinutes(30);
+    }
+
+    @Override
+    public PageResult OrderHistory(Integer page, Integer pageSize, Integer status) {
+        Long currentId = BaseContext.getCurrentId();
+        PageHelper.startPage(page,pageSize);
+        Orders o = new Orders();
+        o.setUserId(currentId);
+        o.setStatus(status);
+        Page<OrderVO> orders = orderMapper.findOrder(o);
+        List<OrderVO> orderlist = orders.getResult();
+        orderlist.forEach(orderVO -> {
+            List<OrderDetail> details = orderMapper.FindOrderDetailByOrderId(orderVO.getId());
+            orderVO.setOrderDetailList(details);
+        });
+        return new PageResult(orders.getTotal(),orders.getResult());
     }
 }

@@ -37,4 +37,21 @@
             </if>
         </set>
     </update>
+
+    <select id="findOrder" resultType="com.sky.vo.OrderVO">
+        select * from orders
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="FindOrderDetailByOrderId" resultType="com.sky.entity.OrderDetail">
+        select * from order_detail where order_id = #{id}
+    </select>
+
 </mapper>
