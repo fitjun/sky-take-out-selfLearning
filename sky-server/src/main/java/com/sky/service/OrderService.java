@@ -1,4 +1,5 @@
 package com.sky.service;
+import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersRejectionDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -18,7 +19,7 @@ public interface OrderService {
 
     OrderDetailVO orderDetail(Long id);
 
-    void cancel(Long id);
+    void cancel(OrdersCancelDTO cancelDTO);
 
     void repetition(Long id);
 

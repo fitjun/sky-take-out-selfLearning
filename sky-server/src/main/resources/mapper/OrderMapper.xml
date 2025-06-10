@@ -49,7 +49,7 @@
             <if test="cancelTime!=null">cancel_time = #{cancelTime},</if>
             <if test="status!=null">status = #{status}</if>
         </set>
-        where number = #{number}
+        where id =#{id}
     </update>
 
     <select id="findOrder" resultType="com.sky.vo.OrderVO">

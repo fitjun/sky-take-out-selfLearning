@@ -128,10 +128,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void cancel(Long id) {
+    public void cancel(OrdersCancelDTO ordersCancelDTO) {
         Orders orders = new Orders();
-        orders.setId(id);
+        orders.setId(ordersCancelDTO.getId());
         orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason(ordersCancelDTO.getCancelReason());
         orderMapper.cancel(orders);
     }
 
