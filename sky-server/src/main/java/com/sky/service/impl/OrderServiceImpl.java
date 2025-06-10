@@ -187,4 +187,13 @@ public class OrderServiceImpl implements OrderService {
         o.setStatus(Orders.CONFIRMED);
         orderMapper.update(o);
     }
+
+    @Override
+    public void rejection(OrdersRejectionDTO rejectionDTO) {
+        Orders o = new Orders();
+        o.setId(rejectionDTO.getId());
+        o.setRejectionReason(rejectionDTO.getRejectionReason());
+        o.setStatus(7);
+        orderMapper.update(o);
+    }
 }

@@ -1,5 +1,6 @@
 package com.sky.service;
 import com.sky.dto.OrdersPaymentDTO;
+import com.sky.dto.OrdersRejectionDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.result.PageResult;
 import com.sky.vo.OrderDetailVO;
@@ -26,4 +27,6 @@ public interface OrderService {
     OrderStatistusVO orderStatics();
 
     void confirm(Long id);
+
+    void rejection(OrdersRejectionDTO rejectionDTO);
 }
