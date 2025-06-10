@@ -4,10 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersConditionSearchDTO;
-import com.sky.dto.OrdersDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.AddressBook;
 import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
@@ -20,6 +17,7 @@ import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderDetailVO;
+import com.sky.vo.OrderStatistusVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
@@ -27,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,5 +162,21 @@ public class OrderServiceImpl implements OrderService {
         orders.setStatus(status);
         Page<OrderVO> order = orderMapper.findOrder(orders);
         return new PageResult(order.getTotal(),order.getResult());
+    }
+
+    @Override
+    public OrderStatistusVO orderStatics() {
+        List<OrderStatusDTO> orderStatusDTO = orderMapper.StaticCount();
+        OrderStatistusVO statistusVO = new OrderStatistusVO();
+        orderStatusDTO.forEach(o->{
+            if(Integer.valueOf(o.getStatus())==2){
+                statistusVO.setToBeConfirmed(o.getNum());
+            } else if (Integer.valueOf(o.getStatus())==3) {
+                statistusVO.setConfirmed(o.getNum());
+            } else if (Integer.valueOf(o.getStatus())==4) {
+                statistusVO.setDeliveryInProgress(o.getNum());
+            }
+        });
+        return statistusVO;
     }
 }

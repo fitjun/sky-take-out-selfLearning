@@ -70,5 +70,7 @@
     <select id="findOrderDetailByOrderId" resultType="com.sky.entity.OrderDetail">
         select * from order_detail where order_id = #{id}
     </select>
-
+    <select id="StaticCount" resultType="com.sky.dto.OrderStatusDTO">
+        select count(*) num,status from orders group by status
+    </select>
 </mapper>

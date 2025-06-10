@@ -1,6 +1,7 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.OrderStatusDTO;
 import com.sky.dto.OrdersConditionSearchDTO;
 import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
@@ -26,4 +27,5 @@ public interface OrderMapper {
 
     void cancel(Orders orders);
 
+    List<OrderStatusDTO> StaticCount();
 }

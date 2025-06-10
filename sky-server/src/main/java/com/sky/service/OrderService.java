@@ -1,12 +1,11 @@
 package com.sky.service;
-import com.sky.dto.OrdersConditionSearchDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.result.PageResult;
 import com.sky.vo.OrderDetailVO;
+import com.sky.vo.OrderStatistusVO;
 import com.sky.vo.OrderSubmitVO;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public interface OrderService {
@@ -23,4 +22,6 @@ public interface OrderService {
     void repetition(Long id);
 
     PageResult ConditionSearch(Integer page, Integer pageSize, LocalDateTime beginTime, LocalDateTime endTime, String number, String phone, Integer status);
+
+    OrderStatistusVO orderStatics();
 }

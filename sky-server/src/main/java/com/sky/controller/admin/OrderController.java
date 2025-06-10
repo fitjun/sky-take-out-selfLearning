@@ -1,17 +1,16 @@
 package com.sky.controller.admin;
 
-import com.sky.dto.OrdersConditionSearchDTO;
-import com.sky.entity.Orders;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderDetailVO;
+import com.sky.vo.OrderStatistusVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @RestController
@@ -29,8 +28,18 @@ public class OrderController {
     }
     @GetMapping("/conditionSearch")
     @ApiOperation("订单搜索")
-    public Result<PageResult> searchOrder(Integer page, Integer pageSize, LocalDateTime beginTime, LocalDateTime endTime, String number,String phone,Integer status){
+    public Result<PageResult> searchOrder(Integer page, Integer pageSize,
+                                          //一定要将完整的时间转换格式写出（包含时分秒）否则报错无法转换
+                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beginTime,
+                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
+                                          String number,String phone,Integer status){
         PageResult result= orderService.ConditionSearch(page,pageSize,beginTime,endTime,number,phone,status);
         return Result.success(result);
+    }
+    @GetMapping("/statistics")
+    @ApiOperation("订单状态数量统计")
+    public Result<OrderStatistusVO> OrderStatics(){
+        OrderStatistusVO orderStatistusVO = orderService.orderStatics();
+        return Result.success(orderStatistusVO);
     }
 }
