@@ -24,4 +24,6 @@ public interface OrderService {
     PageResult ConditionSearch(Integer page, Integer pageSize, LocalDateTime beginTime, LocalDateTime endTime, String number, String phone, Integer status);
 
     OrderStatistusVO orderStatics();
+
+    void confirm(Long id);
 }

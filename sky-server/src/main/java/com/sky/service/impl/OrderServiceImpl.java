@@ -179,4 +179,12 @@ public class OrderServiceImpl implements OrderService {
         });
         return statistusVO;
     }
+
+    @Override
+    public void confirm(Long id) {
+        Orders o = new Orders();
+        o.setId(id);
+        o.setStatus(Orders.CONFIRMED);
+        orderMapper.update(o);
+    }
 }

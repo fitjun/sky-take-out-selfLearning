@@ -36,8 +36,12 @@
                 checkout_time = #{checkoutTime},
             </if>
         </set>
-        where number = #{number}
+        <where>
+            <if test="number!=null">and number = #{number}</if>
+            <if test="id!=null">and id = #{id}</if>
+        </where>
     </update>
+
     <update id="cancel">
         update orders
         <set>
@@ -45,7 +49,7 @@
             <if test="cancelTime!=null">cancel_time = #{cancelTime},</if>
             <if test="status!=null">status = #{status}</if>
         </set>
-        where id = #{id}
+        where number = #{number}
     </update>
 
     <select id="findOrder" resultType="com.sky.vo.OrderVO">
