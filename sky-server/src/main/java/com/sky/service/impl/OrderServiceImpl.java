@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersConditionSearchDTO;
 import com.sky.dto.OrdersDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +107,7 @@ public class OrderServiceImpl implements OrderService {
     public PageResult OrderHistory(Integer page, Integer pageSize, Integer status) {
         Long currentId = BaseContext.getCurrentId();
         PageHelper.startPage(page,pageSize);
-        Orders o = new Orders();
+        OrdersConditionSearchDTO o = new OrdersConditionSearchDTO();
         o.setUserId(currentId);
         o.setStatus(status);
         Page<OrderVO> orders = orderMapper.findOrder(o);
@@ -149,5 +151,19 @@ public class OrderServiceImpl implements OrderService {
             shoppingCarts.add(sc);
         });
         shoppingCartMapper.addAll(shoppingCarts);
+    }
+
+    @Override
+    public PageResult ConditionSearch(Integer page, Integer pageSize, LocalDateTime beginTime, LocalDateTime endTime, String number, String phone, Integer status) {
+
+        PageHelper.startPage(page,pageSize);
+        OrdersConditionSearchDTO orders = new OrdersConditionSearchDTO();
+        orders.setBeginTime(beginTime);
+        orders.setEndTime(endTime);
+        orders.setPhone(phone);
+        orders.setNumber(number);
+        orders.setStatus(status);
+        Page<OrderVO> order = orderMapper.findOrder(orders);
+        return new PageResult(order.getTotal(),order.getResult());
     }
 }

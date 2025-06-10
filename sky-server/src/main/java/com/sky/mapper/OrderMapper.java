@@ -1,6 +1,7 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.OrdersConditionSearchDTO;
 import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderVO;
@@ -17,7 +18,7 @@ public interface OrderMapper {
 
     void update(Orders orders);
 
-    Page<OrderVO> findOrder(Orders orders);
+    Page<OrderVO> findOrder(OrdersConditionSearchDTO orders);
 
     List<OrderDetail> findOrderDetailByOrderId(Long id);
     @Select("select * from orders where id =#{id}")
