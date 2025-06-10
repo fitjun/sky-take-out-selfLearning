@@ -61,7 +61,7 @@
         order by order_time desc
     </select>
 
-    <select id="FindOrderDetailByOrderId" resultType="com.sky.entity.OrderDetail">
+    <select id="findOrderDetailByOrderId" resultType="com.sky.entity.OrderDetail">
         select * from order_detail where order_id = #{id}
     </select>
 

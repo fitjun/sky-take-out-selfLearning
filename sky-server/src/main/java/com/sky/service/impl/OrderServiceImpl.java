@@ -111,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
         Page<OrderVO> orders = orderMapper.findOrder(o);
         List<OrderVO> orderlist = orders.getResult();
         orderlist.forEach(orderVO -> {
-            List<OrderDetail> details = orderMapper.FindOrderDetailByOrderId(orderVO.getId());
+            List<OrderDetail> details = orderMapper.findOrderDetailByOrderId(orderVO.getId());
             orderVO.setOrderDetailList(details);
         });
         return new PageResult(orders.getTotal(),orders.getResult());
@@ -121,7 +121,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDetailVO orderDetail(Long id) {
         Orders orders = orderMapper.findOrderById(id);
         orders.setUserId(BaseContext.getCurrentId());
-        List<OrderDetail> details = orderMapper.FindOrderDetailByOrderId(id);
+        List<OrderDetail> details = orderMapper.findOrderDetailByOrderId(id);
         OrderDetailVO orderDetailVO = new OrderDetailVO();
         BeanUtils.copyProperties(orders,orderDetailVO);
         orderDetailVO.setOrderDetailList(details);
@@ -134,5 +134,20 @@ public class OrderServiceImpl implements OrderService {
         orders.setId(id);
         orders.setStatus(Orders.CANCELLED);
         orderMapper.cancel(orders);
+    }
+
+    @Override
+    public void repetition(Long id) {
+        List<OrderDetail> details = orderMapper.findOrderDetailByOrderId(id);
+        //菜品重新加入购物车，旧订单不用管、让其生成新订单，旧的留着做订单历史
+        List<ShoppingCart> shoppingCarts = new ArrayList<>();
+        details.forEach(orderDetail -> {
+            ShoppingCart sc = new ShoppingCart();
+            BeanUtils.copyProperties(orderDetail,sc);
+            sc.setCreateTime(LocalDateTime.now());
+            sc.setUserId(BaseContext.getCurrentId());
+            shoppingCarts.add(sc);
+        });
+        shoppingCartMapper.addAll(shoppingCarts);
     }
 }

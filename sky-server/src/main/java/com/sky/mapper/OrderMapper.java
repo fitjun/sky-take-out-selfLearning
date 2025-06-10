@@ -19,9 +19,10 @@ public interface OrderMapper {
 
     Page<OrderVO> findOrder(Orders orders);
 
-    List<OrderDetail> FindOrderDetailByOrderId(Long id);
+    List<OrderDetail> findOrderDetailByOrderId(Long id);
     @Select("select * from orders where id =#{id}")
     Orders findOrderById(Long id);
 
     void cancel(Orders orders);
+
 }
