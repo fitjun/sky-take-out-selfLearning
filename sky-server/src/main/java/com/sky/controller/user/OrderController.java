@@ -1,14 +1,13 @@
 package com.sky.controller.user;
 
 import com.sky.dto.OrdersDTO;
+import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.entity.OrderDetail;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
-import com.sky.vo.OrderOverViewVO;
-import com.sky.vo.OrderPaymentVO;
-import com.sky.vo.OrderSubmitVO;
-import com.sky.vo.OrderVO;
+import com.sky.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ public class OrderController {
 
     @PutMapping("/payment")
     @ApiOperation("订单支付")
-    public Result<OrderPaymentVO> pay(@RequestBody OrdersDTO ordersDTO) {
+    public Result<OrderPaymentVO> pay(@RequestBody OrdersPaymentDTO ordersDTO) {
         orderService.pay(ordersDTO);
         OrderPaymentVO paymentVO = OrderPaymentVO.builder()
                 .packageStr("prepay_id=wx1234567890")
@@ -51,5 +50,19 @@ public class OrderController {
     public Result<PageResult>historyOrders(Integer page, Integer pageSize, Integer status) {
         PageResult result = orderService.OrderHistory(page,pageSize,status);
         return Result.success(result);
+    }
+
+    @GetMapping("/orderDetail/{id}")
+    @ApiOperation("查看订单详情")
+    public Result<OrderDetailVO> orderDetail(@PathVariable Long id){
+        OrderDetailVO detail = orderService.orderDetail(id);
+        return Result.success(detail);
+    }
+
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("取消订单")
+    public Result cancel(@PathVariable Long id){
+        orderService.cancel(id);
+        return Result.success();
     }
 }

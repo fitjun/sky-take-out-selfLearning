@@ -5,6 +5,7 @@ import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -19,4 +20,8 @@ public interface OrderMapper {
     Page<OrderVO> findOrder(Orders orders);
 
     List<OrderDetail> FindOrderDetailByOrderId(Long id);
+    @Select("select * from orders where id =#{id}")
+    Orders findOrderById(Long id);
+
+    void cancel(Orders orders);
 }

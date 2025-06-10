@@ -1,11 +1,11 @@
 package com.sky.service.impl;
 
-import cn.hutool.db.sql.Order;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.OrdersDTO;
+import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.AddressBook;
 import com.sky.entity.OrderDetail;
@@ -17,11 +17,10 @@ import com.sky.mapper.AddressBookMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
-import com.sky.result.Result;
 import com.sky.service.OrderService;
+import com.sky.vo.OrderDetailVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
-import com.sun.org.apache.bcel.internal.ExceptionConst;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -91,9 +89,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public LocalDateTime pay(OrdersDTO ordersDTO) {
+    public LocalDateTime pay(OrdersPaymentDTO ordersDTO) {
         Orders orders = new Orders();
         BeanUtils.copyProperties(ordersDTO, orders);
+        orders.setNumber(ordersDTO.getOrderNumber());
         orders.setPayStatus(Orders.PAID);
         orders.setStatus(Orders.TO_BE_CONFIRMED);
         orders.setPayMethod(ordersDTO.getPayMethod());
@@ -116,5 +115,24 @@ public class OrderServiceImpl implements OrderService {
             orderVO.setOrderDetailList(details);
         });
         return new PageResult(orders.getTotal(),orders.getResult());
+    }
+
+    @Override
+    public OrderDetailVO orderDetail(Long id) {
+        Orders orders = orderMapper.findOrderById(id);
+        orders.setUserId(BaseContext.getCurrentId());
+        List<OrderDetail> details = orderMapper.FindOrderDetailByOrderId(id);
+        OrderDetailVO orderDetailVO = new OrderDetailVO();
+        BeanUtils.copyProperties(orders,orderDetailVO);
+        orderDetailVO.setOrderDetailList(details);
+        return orderDetailVO;
+    }
+
+    @Override
+    public void cancel(Long id) {
+        Orders orders = new Orders();
+        orders.setId(id);
+        orders.setStatus(Orders.CANCELLED);
+        orderMapper.cancel(orders);
     }
 }
