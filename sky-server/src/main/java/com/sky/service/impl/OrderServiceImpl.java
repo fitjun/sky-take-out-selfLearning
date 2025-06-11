@@ -14,12 +14,15 @@ import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.AddressBookMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
+import com.sky.properties.ShopProperties;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
+import com.sky.utils.DistanceUtil;
 import com.sky.vo.OrderDetailVO;
 import com.sky.vo.OrderStatistusVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private AddressBookMapper addressBookMapper;
@@ -37,6 +41,8 @@ public class OrderServiceImpl implements OrderService {
     private ShoppingCartMapper shoppingCartMapper;
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private ShopProperties shopProperties;
     @Override
     @Transactional
     public OrderSubmitVO submit(OrdersSubmitDTO order) {
@@ -56,6 +62,23 @@ public class OrderServiceImpl implements OrderService {
         }
         //取出数据，创建订单对象、订单细节对象
         addressBook=addressBook1.get(0);
+
+
+        //判断是否在店铺五公里内
+        String address = addressBook.getProvinceName() + addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail();
+        String address1 = shopProperties.getAddress();
+        String ak = shopProperties.getAK();
+        log.info("地址：{}，ak:{}",address,ak);
+        DistanceUtil distanceUtil = new DistanceUtil();
+        try {
+            boolean within5Km = distanceUtil.isWithin5Km(ak, address1, address);
+            if(!within5Km){
+                throw new AddressBookBusinessException("地址与商家距离过远，请选择其他店铺");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         Orders o = new Orders();
         BeanUtils.copyProperties(order, o);
         o.setNumber(String.valueOf(System.currentTimeMillis()));
@@ -65,7 +88,6 @@ public class OrderServiceImpl implements OrderService {
         o.setPayStatus(Orders.UN_PAID);
         o.setPhone(addressBook.getPhone());
         o.setConsignee(addressBook.getConsignee());
-        String address = addressBook.getProvinceName() + addressBook.getCityName() + addressBook.getDistrictName() + addressBook.getDetail();
         o.setAddress(address);
         orderMapper.insert(o);
         List<OrderDetail> ol = new ArrayList<>();
@@ -153,7 +175,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PageResult ConditionSearch(Integer page, Integer pageSize, LocalDateTime beginTime, LocalDateTime endTime, String number, String phone, Integer status) {
-
         PageHelper.startPage(page,pageSize);
         OrdersConditionSearchDTO orders = new OrdersConditionSearchDTO();
         orders.setBeginTime(beginTime);

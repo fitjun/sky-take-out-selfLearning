@@ -49,3 +49,7 @@ sky:
   wechat:
     appid: ${WECHAT_APPID}
     secret: ${WECHAT_SECRET}
+  shop:
+    address: 广东省广州市番禺区大石礼村小学
+    AK: ${BAIDU_AK}
+    AK1: ${BAIDU_AK!}

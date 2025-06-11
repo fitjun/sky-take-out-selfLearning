@@ -30,6 +30,8 @@ public class AddressBookServiceImpl implements AddressBookService {
     public void add(AddressBook addressBook) {
         addressBook.setUserId(BaseContext.getCurrentId());
         //新加入的都设置为默认地址
+        //需要先将其他都设置为非默认再改
+        addressBookMapper.AllNOtDefault();
         addressBook.setIsDefault(1);
         addressBookMapper.add(addressBook);
     }

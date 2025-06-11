@@ -5,22 +5,22 @@ import com.sky.dto.OrdersDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.OrderDetail;
+import com.sky.properties.ShopProperties;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
+import com.sky.utils.DistanceUtil;
 import com.sky.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.jaxb.SpringDataJaxb;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController("userOrderController")
 @RequestMapping("/user/order")
 @Api(tags = "/订单接口")
+@Slf4j
 public class OrderController {
     @Autowired
     private OrderService orderService;
@@ -29,6 +29,9 @@ public class OrderController {
     @ApiOperation("提交订单")
     public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO order) {
         OrderSubmitVO submit = orderService.submit(order);
+        if (submit == null){
+            return Result.error("距离商铺大于5公里，请选择其他商铺");
+        }
         return Result.success(submit);
     }
 

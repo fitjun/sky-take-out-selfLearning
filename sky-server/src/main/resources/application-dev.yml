@@ -14,7 +14,6 @@ sky:
     host: 192.168.83.100
     password: 123321
     port: 6379
-
   jwt:
     # 设置jwt签名加密时使用的秘钥
     admin-secret-key: itcast
