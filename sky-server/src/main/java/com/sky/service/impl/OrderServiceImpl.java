@@ -197,4 +197,12 @@ public class OrderServiceImpl implements OrderService {
         o.setStatus(7);
         orderMapper.update(o);
     }
+
+    @Override
+    public void delivery(Long id) {
+        Orders orders = new Orders();
+        orders.setId(id);
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orderMapper.update(orders);
+    }
 }
