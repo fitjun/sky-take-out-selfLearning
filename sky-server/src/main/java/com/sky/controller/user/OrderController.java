@@ -11,11 +11,15 @@ import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.utils.DistanceUtil;
 import com.sky.vo.*;
+import com.sky.websocket.WebSocketServer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController("userOrderController")
 @RequestMapping("/user/order")
@@ -24,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     @PostMapping("/submit")
     @ApiOperation("提交订单")
@@ -46,6 +52,7 @@ public class OrderController {
                 .nonceStr("1640629000")
                 .signType("RSA")
                 .build();
+
         return Result.success(paymentVO);
     }
 
@@ -75,6 +82,13 @@ public class OrderController {
     @ApiOperation("再来一单")
     public Result repetition(@PathVariable Long id){
         orderService.repetition(id);
+        return Result.success();
+    }
+
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("催单")
+    public Result reminder(@PathVariable Long id){
+        orderService.reminder(id);
         return Result.success();
     }
 }

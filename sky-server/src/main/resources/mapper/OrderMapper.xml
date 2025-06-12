@@ -77,4 +77,11 @@
     <select id="StaticCount" resultType="com.sky.dto.OrderStatusDTO">
         select count(*) num,status from orders group by status
     </select>
+    <select id="findOrderByIdOrNumber" resultType="com.sky.entity.Orders">
+        select * from orders
+        <where>
+            <if test="id!=null">and id=#{id}</if>
+            <if test="numbers!=null and numbers!=''">number = #{numbers}</if>
+        </where>
+    </select>
 </mapper>

@@ -18,6 +18,7 @@ public class OrderTask {
     @Autowired
     private OrderMapper orderMapper;
     @Scheduled(cron = "0 * * * * *")
+//    @Scheduled(cron = "1/5 * * * * *")
     public void processTimeoutOrder() {
         log.info("定时处理超时订单：{}", LocalDateTime.now());
         //查询超时订单，并设置为取消15分钟没接单就算超时
@@ -34,6 +35,7 @@ public class OrderTask {
     }
 
     @Scheduled(cron = "0 0 1 * * ?")
+//    @Scheduled(cron = "0/5 * * * * ?")
     public void processDeliveryOrder(){
         log.info("自动处理一直正在派送中的订单：{}",LocalDateTime.now());
         LocalDateTime time = LocalDateTime.now().minusMinutes(60);//查询前一天的一直在派送的订单

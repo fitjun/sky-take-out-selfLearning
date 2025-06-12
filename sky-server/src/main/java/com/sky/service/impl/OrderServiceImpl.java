@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -10,6 +11,7 @@ import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
 import com.sky.entity.ShoppingCart;
 import com.sky.exception.AddressBookBusinessException;
+import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.AddressBookMapper;
 import com.sky.mapper.OrderMapper;
@@ -22,6 +24,7 @@ import com.sky.vo.OrderDetailVO;
 import com.sky.vo.OrderStatistusVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -43,6 +48,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderMapper orderMapper;
     @Autowired
     private ShopProperties shopProperties;
+    @Autowired
+    private WebSocketServer webSocketServer;
     @Override
     @Transactional
     public OrderSubmitVO submit(OrdersSubmitDTO order) {
@@ -119,6 +126,13 @@ public class OrderServiceImpl implements OrderService {
         orders.setPayMethod(ordersDTO.getPayMethod());
         orders.setCheckoutTime(LocalDateTime.now());
         orderMapper.update(orders);
+        Orders o = orderMapper.findOrderByIdOrNumber(null, orders.getNumber());
+        Map map = new HashMap();
+        map.put("type",1);
+        map.put("orderId",o.getId());
+        map.put("content","订单号:"+o.getNumber());
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
         return LocalDateTime.now().plusMinutes(30);
     }
 
@@ -140,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDetailVO orderDetail(Long id) {
-        Orders orders = orderMapper.findOrderById(id);
+        Orders orders = orderMapper.findOrderByIdOrNumber(id,null);
         orders.setUserId(BaseContext.getCurrentId());
         List<OrderDetail> details = orderMapper.findOrderDetailByOrderId(id);
         OrderDetailVO orderDetailVO = new OrderDetailVO();
@@ -233,5 +247,19 @@ public class OrderServiceImpl implements OrderService {
         o.setId(id);
         o.setStatus(Orders.COMPLETED);
         orderMapper.update(o);
+    }
+
+    @Override
+    public void reminder(Long id) {
+        Orders o = orderMapper.findOrderByIdOrNumber(id,null);
+        if(o==null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Map map = new HashMap();
+        map.put("type",2);
+        map.put("orderId",id);
+        map.put("content","订单号:"+o.getNumber());
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
     }
 }

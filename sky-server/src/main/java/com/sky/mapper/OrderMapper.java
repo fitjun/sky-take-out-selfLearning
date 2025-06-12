@@ -23,8 +23,8 @@ public interface OrderMapper {
     Page<OrderVO> findOrder(OrdersConditionSearchDTO orders);
 
     List<OrderDetail> findOrderDetailByOrderId(Long id);
-    @Select("select * from orders where id =#{id}")
-    Orders findOrderById(Long id);
+
+    Orders findOrderByIdOrNumber(Long id,String numbers);
 
     void cancel(Orders orders);
 
