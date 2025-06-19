@@ -1,6 +1,7 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrderStatusDTO;
 import com.sky.dto.OrdersConditionSearchDTO;
 import com.sky.entity.OrderDetail;
@@ -35,7 +36,5 @@ public interface OrderMapper {
 
     Integer countOrders(Map map);
 
-    List<String> countTop10Name(Map map);
-
-    List<Integer> countTop10Num(Map map);
+    List<GoodsSalesDTO> findGoodSales(Map map);
 }

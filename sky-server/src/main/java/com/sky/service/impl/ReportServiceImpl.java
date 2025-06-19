@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ReportMapper;
@@ -140,12 +141,15 @@ public class ReportServiceImpl implements ReportService {
         Map map = new HashMap();
         map.put("beginTime",beginTime);
         map.put("endTime",endTime);
-        nameList = orderMapper.countTop10Name(map);
-        numberList = orderMapper.countTop10Num(map);
-        while (nameList.size()<10) {
-            nameList.add(null);
-            numberList.add(null);
+        List<GoodsSalesDTO> salesDTOS = orderMapper.findGoodSales(map);
+        for (GoodsSalesDTO salesDTO : salesDTOS) {
+            nameList.add(salesDTO.getName());
+            numberList.add(salesDTO.getNumber());
         }
+//        while (nameList.size()<10) {
+//            nameList.add(null);
+//            numberList.add(null);
+//        }
         return SalesTop10ReportVO.builder()
                 .nameList(StringUtils.join(nameList,","))
                 .numberList(StringUtils.join(numberList,","))
