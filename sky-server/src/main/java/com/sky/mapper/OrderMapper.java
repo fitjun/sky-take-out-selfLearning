@@ -34,4 +34,8 @@ public interface OrderMapper {
     List<Orders> getByStatusAndOrderTimeLT(Integer status , LocalDateTime time);
 
     Integer countOrders(Map map);
+
+    List<String> countTop10Name(Map map);
+
+    List<Integer> countTop10Num(Map map);
 }

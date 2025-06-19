@@ -6,12 +6,14 @@ import com.sky.mapper.ReportMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,6 +29,7 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private OrderMapper orderMapper;
     @Override
+    @Transactional
     public TurnoverReportVO turnoverStatistics(LocalDate begin, LocalDate end) {
         List<LocalDate> days = new ArrayList<>();
         List<Double> turnovers = new ArrayList<>();
@@ -54,6 +57,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Transactional
     public UserReportVO userStatistics(LocalDate begin, LocalDate end) {
         List<LocalDate> days = new ArrayList<>();
         List<Integer> all = new ArrayList<>();
@@ -82,6 +86,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Transactional
     public OrderReportVO orderStatistics(LocalDate begin, LocalDate end) {
         //LocalDate不要时分秒，要时分秒就是LocalDateTime
         List<LocalDate> days = new ArrayList<>();
@@ -122,6 +127,28 @@ public class ReportServiceImpl implements ReportService {
                 .orderCountList(StringUtils.join(orderCounts,","))
                 .validOrderCountList(StringUtils.join(validOrderCounts,","))
                 .orderCompletionRate(orderCompletionRate)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public SalesTop10ReportVO top10(LocalDate begin, LocalDate end) {
+        List<String> nameList = new ArrayList<>();
+        List<Integer> numberList = new ArrayList<>();
+        LocalDateTime beginTime = LocalDateTime.of(begin,LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end,LocalTime.MAX);
+        Map map = new HashMap();
+        map.put("beginTime",beginTime);
+        map.put("endTime",endTime);
+        nameList = orderMapper.countTop10Name(map);
+        numberList = orderMapper.countTop10Num(map);
+        while (nameList.size()<10) {
+            nameList.add(null);
+            numberList.add(null);
+        }
+        return SalesTop10ReportVO.builder()
+                .nameList(StringUtils.join(nameList,","))
+                .numberList(StringUtils.join(numberList,","))
                 .build();
     }
 }
