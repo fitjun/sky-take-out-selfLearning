@@ -8,4 +8,12 @@
         VALUES (#{openid},#{name},#{phone},#{sex},#{idNumber},#{avatar},#{createTime})
     </insert>
 
+    <select id="CountUser" resultType="integer">
+        select count(*) from user
+        <where>
+            <if test="dayEnd!=null">and create_time &lt; #{dayEnd}</if>
+            <if test="dayStart!=null">and create_time &gt; #{dayStart}</if>
+        </where>
+    </select>
+
 </mapper>
