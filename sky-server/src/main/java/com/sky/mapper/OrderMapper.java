@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -31,4 +32,6 @@ public interface OrderMapper {
     List<OrderStatusDTO> StaticCount();
     @Select("select * from orders where status=#{status} and checkout_time < #{time}")
     List<Orders> getByStatusAndOrderTimeLT(Integer status , LocalDateTime time);
+
+    Integer countOrders(Map map);
 }

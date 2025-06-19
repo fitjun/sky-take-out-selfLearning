@@ -1,9 +1,11 @@
 package com.sky.service.impl;
 
 import com.sky.entity.Orders;
+import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ReportMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.apache.commons.lang.StringUtils;
@@ -22,6 +24,8 @@ public class ReportServiceImpl implements ReportService {
     private ReportMapper reportMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private OrderMapper orderMapper;
     @Override
     public TurnoverReportVO turnoverStatistics(LocalDate begin, LocalDate end) {
         List<LocalDate> days = new ArrayList<>();
@@ -74,6 +78,50 @@ public class ReportServiceImpl implements ReportService {
                 .dateList(StringUtils.join(days,","))
                 .newUserList(StringUtils.join(newUser,","))
                 .totalUserList(StringUtils.join(all,","))
+                .build();
+    }
+
+    @Override
+    public OrderReportVO orderStatistics(LocalDate begin, LocalDate end) {
+        //LocalDate不要时分秒，要时分秒就是LocalDateTime
+        List<LocalDate> days = new ArrayList<>();
+        List<Integer> orderCounts = new ArrayList<>();
+        List<Integer> validOrderCounts = new ArrayList<>();
+        Integer totalOrderCount = 0;
+        Integer validOrderCount=0;
+        Double orderCompletionRate = 0.0;
+        days.add(begin);
+        while (!begin.equals(end)){
+            begin = begin.plusDays(1);
+            days.add(begin);
+        }
+        for (int i = 0; i < days.size(); i++) {
+            LocalDate day = days.get(i);
+            LocalDateTime startTime = LocalDateTime.of(day,LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(day,LocalTime.MAX);
+            Map map = new HashMap();
+            map.put("endTime",endTime);
+            map.put("startTime",startTime);
+            //总数不传状态，有效订单再传
+            Integer Daytotal = orderMapper.countOrders(map);
+            orderCounts.add(Daytotal);
+            map.put("status",5);
+            Integer DayValid = orderMapper.countOrders(map);
+            validOrderCounts.add(DayValid);
+            totalOrderCount+=Daytotal;
+            validOrderCount+=DayValid;
+        }
+        //除0错误处理
+        if (validOrderCount!=0){
+            orderCompletionRate = validOrderCount.doubleValue()/totalOrderCount;
+        }
+        return OrderReportVO.builder()
+                .dateList(StringUtils.join(days,","))
+                .totalOrderCount(totalOrderCount)
+                .validOrderCount(validOrderCount)
+                .orderCountList(StringUtils.join(orderCounts,","))
+                .validOrderCountList(StringUtils.join(validOrderCounts,","))
+                .orderCompletionRate(orderCompletionRate)
                 .build();
     }
 }
