@@ -37,4 +37,6 @@ public interface OrderMapper {
     Integer countOrders(Map map);
 
     List<GoodsSalesDTO> findGoodSales(Map map);
+
+    Double turnOver(Map map);
 }
