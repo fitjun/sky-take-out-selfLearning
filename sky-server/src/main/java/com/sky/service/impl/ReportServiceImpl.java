@@ -72,9 +72,9 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime dayStart = LocalDateTime.of(day,LocalTime.MIN);
             LocalDateTime dayEnd = LocalDateTime.of(day,LocalTime.MAX);
             Map map = new HashMap();
-            map.put("dayEnd",dayEnd);
+            map.put("startTime",dayEnd);
             Integer AllUser = userMapper.CountUser(map);
-            map.put("dayStart",dayStart);
+            map.put("endTime",dayStart);
             Integer dayUser = userMapper.CountUser(map);
             all.add(AllUser);
             newUser.add(dayUser);
@@ -139,7 +139,7 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime beginTime = LocalDateTime.of(begin,LocalTime.MIN);
         LocalDateTime endTime = LocalDateTime.of(end,LocalTime.MAX);
         Map map = new HashMap();
-        map.put("beginTime",beginTime);
+        map.put("startTime",beginTime);
         map.put("endTime",endTime);
         List<GoodsSalesDTO> salesDTOS = orderMapper.findGoodSales(map);
         for (GoodsSalesDTO salesDTO : salesDTOS) {

@@ -27,4 +27,6 @@ public interface SetMealMapper {
 
     @Select("select * from setmeal where category_id = #{categoryId}")
     List<Setmeal> findByCategoryId(Integer categoryId);
+
+    Integer countStatus(int status);
 }

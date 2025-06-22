@@ -20,6 +20,10 @@
         ORDER BY update_time DESC
     </select>
 
+    <select id="countStatus" resultType="java.lang.Integer">
+        select count(*) from setmeal where status = #{status}
+    </select>
+
     <insert id="save" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO setmeal (category_id, name, price, status, description, image, create_time, update_time, create_user, update_user)
         VALUES (#{categoryId},#{name},#{price},#{status},#{description},#{image},#{createTime},#{updateTime},#{createUser},#{updateUser})

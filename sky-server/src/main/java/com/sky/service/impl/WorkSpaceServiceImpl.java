@@ -2,9 +2,12 @@ package com.sky.service.impl;
 
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.SetMealMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.WorkSpaceService;
 import com.sky.vo.BusinessDataVO;
+import com.sky.vo.SetmealOverViewVO;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,15 +23,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private OrderMapper orderMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private SetMealMapper setMealMapper;
     @Override
     public BusinessDataVO businessData() {
         //返回数据有当天总订单数、当天有效订单数、当天新顾客、当天营业额
         Map map = new HashMap();
         LocalDate localDate = LocalDate.now();
-        map.put("begin",LocalDateTime.of(localDate,LocalTime.MIN));
-        map.put("end",LocalDateTime.of(localDate,LocalTime.MAX));
-        map.put("dayStart",LocalDateTime.of(localDate,LocalTime.MIN));
-        map.put("dayEnd",LocalDateTime.of(localDate,LocalTime.MAX));
         map.put("startTime",LocalDateTime.of(localDate,LocalTime.MIN));
         map.put("endTime",LocalDateTime.of(localDate,LocalTime.MAX));
         Integer newUsers = userMapper.CountUser(map);
@@ -54,6 +55,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 .newUsers(newUsers)
                 .validOrderCount(validOrders)
                 .turnover(turnover)
+                .build();
+    }
+
+    @Override
+    public SetmealOverViewVO setmealData() {
+        Integer sold = setMealMapper.countStatus(1);
+        Integer discontinued = setMealMapper.countStatus(0);
+        return SetmealOverViewVO.builder()
+                .sold(sold)
+                .discontinued(discontinued)
                 .build();
     }
 }
