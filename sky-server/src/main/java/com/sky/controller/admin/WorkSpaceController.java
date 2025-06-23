@@ -2,10 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.result.Result;
 import com.sky.service.WorkSpaceService;
-import com.sky.vo.BusinessDataVO;
-import com.sky.vo.DishOverViewVO;
-import com.sky.vo.SetmealOverViewVO;
-import com.sky.vo.SetmealVO;
+import com.sky.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,4 +32,9 @@ public class WorkSpaceController {
         return Result.success(vo);
     }
 
+    @GetMapping("/overviewOrders")
+    public Result<OrderOverViewVO> orderData(){
+        OrderOverViewVO vo = workSpaceService.orderData();
+        return Result.success(vo);
+    }
 }

@@ -8,6 +8,7 @@ import com.sky.mapper.UserMapper;
 import com.sky.service.WorkSpaceService;
 import com.sky.vo.BusinessDataVO;
 import com.sky.vo.DishOverViewVO;
+import com.sky.vo.OrderOverViewVO;
 import com.sky.vo.SetmealOverViewVO;
 import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,32 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return DishOverViewVO.builder()
                 .sold(sold==null?0:sold)
                 .discontinued(discontinued==null?0:discontinued)
+                .build();
+    }
+
+    @Override
+    public OrderOverViewVO orderData() {
+        Map map = new HashMap();
+        LocalDate localDate = LocalDate.now();
+        LocalDateTime begin = LocalDateTime.of(localDate,LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.of(localDate,LocalTime.MAX);
+        map.put("startTime",begin);
+        map.put("endTime",end);
+        Integer allOrders = orderMapper.countOrders(map);
+        map.put("status",Orders.CANCELLED);
+        Integer cancelledOrders = orderMapper.countOrders(map);
+        map.put("status",Orders.COMPLETED);
+        Integer completedOrders = orderMapper.countOrders(map);
+        map.put("status", Orders.CONFIRMED);
+        Integer deliveredOrders = orderMapper.countOrders(map);
+        map.put("status",Orders.TO_BE_CONFIRMED);
+        Integer waitingOrders = orderMapper.countOrders(map);
+        return OrderOverViewVO.builder()
+                .deliveredOrders(deliveredOrders==null?0:deliveredOrders)
+                .allOrders(allOrders==null?0:allOrders)
+                .cancelledOrders(cancelledOrders==null?0:cancelledOrders)
+                .completedOrders(completedOrders==null?0:completedOrders)
+                .waitingOrders(waitingOrders==null?0:waitingOrders)
                 .build();
     }
 }
