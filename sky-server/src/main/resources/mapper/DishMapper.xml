@@ -18,6 +18,10 @@
         ORDER BY create_time DESC
     </select>
 
+    <select id="countStatus" resultType="java.lang.Integer">
+            select count(*) from dish where status = #{status}
+    </select>
+
     <delete id="delById">
         DELETE FROM dish
         where id IN

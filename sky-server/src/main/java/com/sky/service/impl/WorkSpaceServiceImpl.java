@@ -1,11 +1,13 @@
 package com.sky.service.impl;
 
 import com.sky.entity.Orders;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.WorkSpaceService;
 import com.sky.vo.BusinessDataVO;
+import com.sky.vo.DishOverViewVO;
 import com.sky.vo.SetmealOverViewVO;
 import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private UserMapper userMapper;
     @Autowired
     private SetMealMapper setMealMapper;
+    @Autowired
+    private DishMapper dishMapper;
     @Override
     public BusinessDataVO businessData() {
         //返回数据有当天总订单数、当天有效订单数、当天新顾客、当天营业额
@@ -63,8 +67,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         Integer sold = setMealMapper.countStatus(1);
         Integer discontinued = setMealMapper.countStatus(0);
         return SetmealOverViewVO.builder()
-                .sold(sold)
-                .discontinued(discontinued)
+                .sold(sold==null?0:sold)
+                .discontinued(discontinued==null?0:discontinued)
+                .build();
+    }
+
+    @Override
+    public DishOverViewVO dishData() {
+        Integer sold = dishMapper.countStatus(1);
+        Integer discontinued = dishMapper.countStatus(0);
+        return DishOverViewVO.builder()
+                .sold(sold==null?0:sold)
+                .discontinued(discontinued==null?0:discontinued)
                 .build();
     }
 }
