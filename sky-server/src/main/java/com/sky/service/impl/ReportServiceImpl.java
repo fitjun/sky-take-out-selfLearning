@@ -6,16 +6,21 @@ import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ReportMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.service.WorkSpaceService;
+import com.sky.vo.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.util.StringUtil;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -29,6 +34,8 @@ public class ReportServiceImpl implements ReportService {
     private UserMapper userMapper;
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private WorkSpaceService workSpaceService;
     @Override
     @Transactional
     public TurnoverReportVO turnoverStatistics(LocalDate begin, LocalDate end) {
@@ -72,9 +79,9 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime dayStart = LocalDateTime.of(day,LocalTime.MIN);
             LocalDateTime dayEnd = LocalDateTime.of(day,LocalTime.MAX);
             Map map = new HashMap();
-            map.put("startTime",dayEnd);
+            map.put("endTime",dayEnd);
             Integer AllUser = userMapper.CountUser(map);
-            map.put("endTime",dayStart);
+            map.put("startTime",dayStart);
             Integer dayUser = userMapper.CountUser(map);
             all.add(AllUser);
             newUser.add(dayUser);
@@ -154,5 +161,56 @@ public class ReportServiceImpl implements ReportService {
                 .nameList(StringUtils.join(nameList,","))
                 .numberList(StringUtils.join(numberList,","))
                 .build();
+    }
+
+    @Override
+    public void export(HttpServletResponse response) {
+        LocalDate beginDay = LocalDate.now().minusDays(30);
+        LocalDate endDay = LocalDate.now().minusDays(1);
+        //方法需要精确到时分秒,所以做一次转换  概览数据
+        LocalDateTime start = LocalDateTime.of(beginDay,LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.of(endDay,LocalTime.MAX);
+        BusinessDataVO businessDataVO = workSpaceService.businessData(start,end);
+        //读取报表模板
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream("template/运营数据报表模板.xlsx");
+        try {
+            XSSFWorkbook excel = new XSSFWorkbook(in);
+            XSSFSheet sheet = excel.getSheet("Sheet1");
+            sheet.getRow(1).getCell(1).setCellValue("时间:"+beginDay+"至"+endDay);
+
+            XSSFRow row = sheet.getRow(3);
+            row.getCell(2).setCellValue(businessDataVO.getTurnover());
+            row.getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+            row.getCell(6).setCellValue(businessDataVO.getNewUsers());
+
+            row = sheet.getRow(4);
+            row.getCell(2).setCellValue(businessDataVO.getValidOrderCount());
+            row.getCell(4).setCellValue(businessDataVO.getUnitPrice());
+
+            int startRow = 7;
+            BusinessDataVO businessDataVO1;
+            //明细数据，查询每天的数据即可,还是哪个方法
+            while (!beginDay.equals(endDay.plusDays(1))){
+                LocalDateTime startTime = LocalDateTime.of(beginDay,LocalTime.MIN);
+                LocalDateTime endTime = LocalDateTime.of(beginDay,LocalTime.MAX);
+                businessDataVO1 = workSpaceService.businessData(startTime, endTime);
+                row = sheet.getRow(startRow);
+                row.getCell(1).setCellValue(beginDay.toString());
+                row.getCell(2).setCellValue(businessDataVO1.getTurnover());
+                row.getCell(3).setCellValue(businessDataVO1.getValidOrderCount());
+                row.getCell(4).setCellValue(businessDataVO1.getOrderCompletionRate());
+                row.getCell(5).setCellValue(businessDataVO1.getUnitPrice());
+                row.getCell(6).setCellValue(businessDataVO1.getNewUsers());
+                beginDay = beginDay.plusDays(1);
+                startRow+=1;
+            }
+            //通过输出流将excel文件下载到客户端浏览器
+            ServletOutputStream out = response.getOutputStream();
+            excel.write(out);
+            out.close();
+            excel.close();
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

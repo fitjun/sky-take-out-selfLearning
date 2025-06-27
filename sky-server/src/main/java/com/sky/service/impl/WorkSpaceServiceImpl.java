@@ -31,12 +31,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private DishMapper dishMapper;
     @Override
-    public BusinessDataVO businessData() {
+    public BusinessDataVO businessData(LocalDateTime start, LocalDateTime end) {
         //返回数据有当天总订单数、当天有效订单数、当天新顾客、当天营业额
         Map map = new HashMap();
-        LocalDate localDate = LocalDate.now();
-        map.put("startTime",LocalDateTime.of(localDate,LocalTime.MIN));
-        map.put("endTime",LocalDateTime.of(localDate,LocalTime.MAX));
+        map.put("startTime",start);
+        map.put("endTime",end);
         Integer newUsers = userMapper.CountUser(map);
         if (newUsers==null){
             newUsers = 0;
@@ -56,7 +55,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         return BusinessDataVO.builder()
                 .orderCompletionRate(orders==0?0.0:validOrders.doubleValue()/orders)
-                .unitPrice(orders==0?0.0:turnover.doubleValue()/validOrders)
+                .unitPrice(validOrders==0?0.0:turnover.doubleValue()/validOrders)
                 .newUsers(newUsers)
                 .validOrderCount(validOrders)
                 .turnover(turnover)
