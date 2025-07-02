@@ -1,16 +1,20 @@
 package com.sky.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
+@Slf4j
 public class Myjwt {
     private static final String ALGORITHM = "HmacSHA256";
     private static final int MIN_KEY_LENGTH = 32;
     public static String createToken(Map<String,Object> claims,String secretKey,Long ttl){
         if (secretKey.getBytes(StandardCharsets.UTF_8).length<MIN_KEY_LENGTH){
+            log.error("密钥需大于32位");
             throw new SecurityException("密钥需大于32位");
         }
         Map<String,Object> header = new HashMap<>();
@@ -29,6 +33,7 @@ public class Myjwt {
     public static Map<String,Object> parseToken(String token,String secretKey){
         String[] parts = token.split("\\.");
         if(parts.length<3){
+            log.error("token格式错误");
             throw new SecurityException("token格式错误");
         }
         String header = parts[0];
@@ -36,6 +41,7 @@ public class Myjwt {
         String signed = parts[2];
         String compared = signData(header+"."+ payload,secretKey);
         if(!safeCompare(compared, signed)){
+            log.error("签名验证失败");
             throw new SecurityException("签名验证失败");
         }
 
@@ -45,6 +51,7 @@ public class Myjwt {
         Map<String,Object> data = parseJson(tokenjson);
         long curTime = Instant.now().getEpochSecond();
         if (data.containsKey("exp") && curTime>((Number)data.get("exp")).longValue()){
+            log.error("令牌已过期");
             throw new SecurityException("令牌已过期");
         }
         return data;
@@ -70,6 +77,7 @@ public class Myjwt {
         }
         //以上是根据逗号来进行插入、最后一对键值对没有逗号，但是start已经记录了最后一对的开始下标，可以直接用
         pairs.add(tokenjson.substring(start).trim());
+        log.info("获取的json数据：{}",pairs);
         for (String pair : pairs) {
             //找第一个：的下标切割，而不是简单的split分割，这样会将嵌套的也割开了
             int index = pair.indexOf(":");
@@ -101,6 +109,7 @@ public class Myjwt {
             }
             map.put(key,parseValue);
         }
+        log.info("反序列化后的json数据：{}",map);
         return map;
     }
 
@@ -127,6 +136,7 @@ public class Myjwt {
             //base64加密直接可以得到字符串，在返回
             return Base64UrlEncode(bytes);
         }catch (Exception e){
+            log.error("签名生成失败");
             throw new SecurityException("签名生成失败");
         }
     }

@@ -6,6 +6,7 @@ import com.sky.properties.JwtProperties;
 import com.sky.result.Result;
 import com.sky.service.UserService;
 import com.sky.utils.JwtUtil;
+import com.sky.utils.Myjwt;
 import com.sky.vo.UserLoginVO;
 import io.jsonwebtoken.Jwts;
 import io.swagger.annotations.Api;
@@ -39,7 +40,8 @@ public class UserController {
         User user = userService.wxlogin(userLoginDTO);
         Map<String, Object> claims = new HashMap<>();
         claims.put(USER_ID, user.getId());
-        String jwt = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
+//        String jwt = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
+        String jwt = Myjwt.createToken(claims,jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl());
         log.info("jwt创建成功：{}",jwt);
         UserLoginVO userLoginVO = UserLoginVO.builder()
                 .id(user.getId())
