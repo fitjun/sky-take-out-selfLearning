@@ -16,12 +16,12 @@ sky:
     port: 6379
   jwt:
     # 设置jwt签名加密时使用的秘钥
-    admin-secret-key: itcast
+    admin-secret-key: this_is_a_very_strong_secretKey_fuck_you_let_me_pass!!!
     # 设置jwt过期时间
     admin-ttl: 720000000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
-    user-secret-key: jj666
+    user-secret-key: jj666_this_secretKey_is_too_short_i_have_to_enhance_it
     user-token-name: authentication
     user-ttl: 720000000
 

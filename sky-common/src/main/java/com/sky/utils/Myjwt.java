@@ -4,137 +4,169 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Myjwt {
-
     private static final String ALGORITHM = "HmacSHA256";
-    public static String createJwt(Map<String, Object> claims,String secretKey,long expTime){
-        //base64将加密算法以及载荷加密，后面再用Hamc256算法将载荷和密钥结合形成最后的密钥，再将三部分组合即是jwtToken
-
-        //信息都用map键值对来装，否则后面解密出来都不知道是干嘛的
-        Map<String,Object> headMap = new HashMap<>();
-        headMap.put("alg",ALGORITHM);
-        headMap.put("typ","Jwt");
-        String header = base64Encode(serializeJson(headMap));
-
-        claims.put("exp", Instant.now().plusSeconds(expTime).getEpochSecond());
-        String payLoadBase64 = base64Encode(serializeJson(claims));
-
-        //结合加密算法与密钥、载荷组成token最重要的标识部分，这部分对了才是对的token，否则就是被篡改过的,传入的是加密算法与载荷结合的base64编码、还有原始密钥
-        //未加密所以叫unsignedToken，不仅方法要学、命名也要学的合理
-        String unsignedToken = header+"."+payLoadBase64;
-        String signature = signData(unsignedToken,secretKey);
-        return unsignedToken+"."+signature;
+    private static final int MIN_KEY_LENGTH = 32;
+    public static String createToken(Map<String,Object> claims,String secretKey,Long ttl){
+        if (secretKey.getBytes(StandardCharsets.UTF_8).length<MIN_KEY_LENGTH){
+            throw new SecurityException("密钥需大于32位");
+        }
+        Map<String,Object> header = new HashMap<>();
+        header.put("alg",ALGORITHM);
+        header.put("typ","jwt");
+        Map<String,Object> payload = new HashMap<>(claims);
+        payload.put("exp", Instant.now().plusSeconds(ttl).getEpochSecond());
+        //先json序列化再base64转换
+        String base64Header = Base64UrlEncode(jsonSerialize(header));
+        String base64payload = Base64UrlEncode(jsonSerialize(payload));
+        String unsignedData = base64Header+"."+base64payload;
+        String signed = signData(unsignedData,secretKey);
+        return unsignedData+"."+signed;
     }
 
-    public static Map<String,Object> parseToken(String token, String secretKey) {
-        //1.检查加密是否正确
-        //token不是三部分、直接返回错误
-        String[] split = token.split("\\.");
-        if (split.length<3){
-            throw new IllegalArgumentException("无效token格式");
+    public static Map<String,Object> parseToken(String token,String secretKey){
+        String[] parts = token.split("\\.");
+        if(parts.length<3){
+            throw new SecurityException("token格式错误");
         }
-        //不用解密、加密算法本来就是传入base64编码数据做的
-        String header = split[0];
-        String payload = split[1];
-        String signed = split[2];
-        String compared = signData(header+"."+payload,secretKey);
-        if (!secureCompare(signed,compared)){
+        String header = parts[0];
+        String payload = parts[1];
+        String signed = parts[2];
+        String compared = signData(header+"."+ payload,secretKey);
+        if(!safeCompare(compared, signed)){
             throw new SecurityException("签名验证失败");
         }
-        //2.取出数据
-        //用String的构造方法传入二进制数组和编码格式可以生产字符串，只需要解码载荷部分、其他部分不携带信息、都是校验位
-        String payloadJson = new String(
+
+        String tokenjson = new String(
                 Base64.getUrlDecoder().decode(payload),
-                StandardCharsets.UTF_8
-        );
-        //3.封装数据
-        Map<String, Object> data = parseJson(payloadJson);
-        //4.检查是否过期，要是exp没有，说明是永久token，直接短路放，通过if的都是过期的
+                StandardCharsets.UTF_8);
+        Map<String,Object> data = parseJson(tokenjson);
         long curTime = Instant.now().getEpochSecond();
         if (data.containsKey("exp") && curTime>((Number)data.get("exp")).longValue()){
             throw new SecurityException("令牌已过期");
         }
-        //5.返回
         return data;
     }
 
-    private static String signData(String unsignedToken, String secretKey) {
-        try {
-            Mac sha256 = Mac.getInstance(ALGORITHM);
-            //传入的是密钥和加密算法
-            SecretKeySpec spec = new SecretKeySpec(
-                    secretKey.getBytes(StandardCharsets.UTF_8),
-                    ALGORITHM
-            );
-            sha256.init(spec);
-            byte[] bytes = sha256.doFinal(unsignedToken.getBytes(StandardCharsets.UTF_8));
-            return base64Encode(bytes);
-        }catch (Exception e){
-            return "签名失败";
-        }
-    }
-
-    //二进制数组转字符串不好转、但字符串转二进制数组好转
-    public static String base64Encode(String data){
-        return base64Encode(data.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public static String base64Encode(byte [] data){
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(data);
-    }
-
-    public static String serializeJson(Map<String,Object> map){
-        StringBuilder sb = new StringBuilder("{");
-        Set<Map.Entry<String, Object>> entries = map.entrySet();
-        System.out.println(entries);
-        for (Map.Entry<String,Object> entry : map.entrySet()) {
-            sb.append("\"").append(entry.getKey()).append("\":");
-            //原工具中区分了字符串和数字、数字则不加双引号，但不利于统一？按照json格式的标准、数字是不加双引号的，所以必须判断
-            if (entry.getValue() instanceof String) {//instanceof 判断数据类型
-                sb.append("\"").append(entry.getValue()).append("\"");
-            }else {
-                sb.append(entry.getValue());
-            }
-            sb.append(",");
-        }
-        //最后要删一个逗号，加一个右大括号
-        sb.deleteCharAt(sb.length()-1).append("}");
-        return sb.toString();
-    }
-
-    public static Map<String,Object> parseJson(String json){
+    private static Map<String, Object> parseJson(String tokenjson) {
         Map<String,Object> map = new HashMap<>();
-        String sub = json.substring(1,json.length()-1);
-        String[] split = sub.split(",");
-        for (int i=0;i<split.length;i++){
-            String[] kv = split[i].split(":");
-            String key = kv[0].substring(1,kv[0].length()-1);
-            //双引号开头是字符串，json格式的规矩
-            if (kv[1].startsWith("\"")){
-                //字符串去双引号
-                map.put(key,kv[1].substring(1,kv[1].length()-1));
-            }else {
-                //数字直接插入，但要转成数字
-                map.put(key,Long.valueOf(kv[1]));
+        tokenjson = tokenjson.substring(1,tokenjson.length()-1).trim();
+        //存储每一对键值对
+        List<String> pairs = new ArrayList<>();
+        //嵌套的逗号如何辨别是属于值中的嵌套键值对的
+        int braceLevel = 0;
+        int start = 0;
+        for (int i =0 ; i<tokenjson.length() ; i++){
+            char c = tokenjson.charAt(i);
+            if(c=='{')braceLevel++;
+            if(c=='}')braceLevel--;
+
+            if (c==',' && braceLevel == 0){
+                pairs.add(tokenjson.substring(start,i).trim());
+                start=i+1;
             }
+        }
+        //以上是根据逗号来进行插入、最后一对键值对没有逗号，但是start已经记录了最后一对的开始下标，可以直接用
+        pairs.add(tokenjson.substring(start).trim());
+        for (String pair : pairs) {
+            //找第一个：的下标切割，而不是简单的split分割，这样会将嵌套的也割开了
+            int index = pair.indexOf(":");
+            String key = pair.substring(0,index);
+            String value = pair.substring(index+1);
+            if(key.startsWith("\"")&&key.endsWith("\"")){
+                key = key.substring(1,key.length()-1);
+            }
+            Object parseValue;
+            if (value.startsWith("\"")){
+                parseValue = value.substring(1,value.length()-1).replace("\\\"","\"");
+            }else if(value.equals("null")){
+                parseValue = null;
+            }else if (value.equals("true")){
+                parseValue = true;
+            }else if (value.equals("false")){
+                parseValue = false;
+            }else {
+                try {
+                    //指数、小数点等都用double
+                    if (value.contains(".") || value.contains("e") || value.contains("E")){
+                        parseValue = Double.parseDouble(value);
+                    }else {
+                        parseValue = Long.parseLong(value);
+                    }
+                }catch (NumberFormatException e){
+                    parseValue = value;
+                }
+            }
+            map.put(key,parseValue);
         }
         return map;
     }
 
-    public static boolean secureCompare(String c1, String c2){
-        byte [] b1 = c1.getBytes(StandardCharsets.UTF_8);
-        byte [] b2 = c2.getBytes(StandardCharsets.UTF_8);
-        //若长度不一致，这里就会让result变成1，因为异或是同0异1
+    private static boolean safeCompare(String compared, String signed) {
+        byte [] b1 = compared.getBytes(StandardCharsets.UTF_8);
+        byte [] b2 = signed.getBytes(StandardCharsets.UTF_8);
         int result = b1.length ^ b2.length;
-        for (int i=0;i<Math.min(b1.length,b2.length);i++){
+        for (int i=0 ; i<Math.min(b1.length,b2.length) ; i++){
             result = result | b1[i] ^ b2[i];
         }
         return result==0;
+    }
+
+    private static String signData(String unsignedData, String secretKey) {
+        try {
+            Mac sh256 = Mac.getInstance(ALGORITHM);
+            //传入密钥和加密算法
+            SecretKeySpec keySpec = new SecretKeySpec(
+                    secretKey.getBytes(StandardCharsets.UTF_8),
+                    ALGORITHM
+            );
+            sh256.init(keySpec);
+            byte[] bytes = sh256.doFinal(unsignedData.getBytes(StandardCharsets.UTF_8));
+            //base64加密直接可以得到字符串，在返回
+            return Base64UrlEncode(bytes);
+        }catch (Exception e){
+            throw new SecurityException("签名生成失败");
+        }
+    }
+
+    public static String Base64UrlEncode(String data){
+        return Base64UrlEncode(data.getBytes(StandardCharsets.UTF_8));
+    }
+    public static String Base64UrlEncode(byte[] data){
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(data);
+    }
+
+    public static String jsonSerialize(Map<String,Object> data){
+        StringBuilder sb = new StringBuilder("{");
+        for (Map.Entry<String,Object> entry : data.entrySet()){
+            sb.append("\"").append(entry.getKey()).append("\":");
+            Object value = entry.getValue();
+            //可能的情况：
+            // 1.value为空,直接插入null，不需要双引号等东西
+            if (value==null){
+                sb.append("null");
+            }
+            // 2.为字符串
+            else if (entry.getValue() instanceof String){
+                sb.append("\"").append(value).append("\"");
+                // 3.为数字或布尔类型
+            }else if (value instanceof Number || value instanceof Boolean){
+                sb.append(value);
+            }else {
+                //value内部双引号，替换成\" \需要转义  "也需要转义  所以是\\ + \"
+                sb.append("\"").append(value.toString().replace("\"","\\\"")).append("\"");
+            }
+            sb.append(",");
+        }
+        //非空才有逗号，所以要判断是否为空
+        if (!data.isEmpty()){
+            //最后一位是length-1，因为下标从0开始，length从1开始
+            sb.deleteCharAt(sb.length()-1);
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
 }
